@@ -6,7 +6,7 @@ const HomePage = () => {
   return (
     <div className="container">
       <Banner />
-      <ProductsList category="Phone" title="Điện thoại di động" limit={5} />
+      <ProductsList category="phone" title="Điện thoại di động" limit={5} />
       <ProductsList category="Laptop" title="Máy tính xách tay" limit={5} />
       <ProductsList category="Watch" title="Đồng hồ" limit={5} />
       <ProductsList category="Tablet" title="Máy tính bảng" limit={5} />

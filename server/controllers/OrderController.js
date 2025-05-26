@@ -157,6 +157,36 @@ const editOderbyId = async (req, res) => {
     });
   }
 }
+const getRevenueByMonth = async (req, res) => {
+  try {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          totalRevenue: { $sum: "$totalOrder" },
+        },
+      },
+      {
+        $sort: { "_id": 1 },
+      },
+    ]);
+
+    const monthNames = [
+      "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+      "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12",
+    ];
+
+    const formatted = result.map((item) => ({
+      month: monthNames[item._id - 1],
+      total: item.totalRevenue,
+    }));
+
+    res.status(200).json(formatted);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 module.exports = {
   getAllOrder,
@@ -164,5 +194,6 @@ module.exports = {
   getMyOrder,
   deleteOrder,
   getOrderbyId,
-  editOderbyId
+  editOderbyId,
+  getRevenueByMonth,
 };

@@ -8,7 +8,9 @@ import Loading from "./components/Loading/Loading";
 import Client from "./pages/Client/Client";
 import Auth from "./pages/Auth";
 import AdminPage from "./pages/Admin/AdminPage";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 const App = () => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -47,6 +49,9 @@ const App = () => {
         <Route path="/*" element={<Client />} />
         <Route path="/auth/*" element={<Auth />} />
         <Route path="/admin/*" element={<AdminPage />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/verify/:token" element={<VerifyEmail />} />
       </Routes>
     </>
   );

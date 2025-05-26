@@ -2,122 +2,186 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap");
 
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-family: "Roboto Condensed", sans-serif;
-}
+@layer base {
+  * {
+    @apply p-0 m-0 box-border;
+    font-family: "Roboto Condensed", sans-serif;
+  }
 
-body {
-  background-color: white;
-}
+  body {
+    @apply bg-white;
+  }
 
-li:last-child {
-  margin-right: 0;
-}
+  li:last-child {
+    @apply mr-0;
+  }
 
-li a.active {
-  background-color: black !important;
-  color: #fff;
-}
+  li a.active {
+    @apply bg-black text-white;
+  }
 
-input {
-  color: #ffffff;
-}
+  input {
+    @apply text-white;
+  }
 
-::-webkit-scrollbar {
-  display: none;
-}
+  .container {
+    @apply mx-auto max-w-[calc(100%-32px)] sm:max-w-[calc(100%-24px)] md:max-w-[calc(100%-32px)] xl:w-[1200px];
+  }
 
-.show-scroll-bar::-webkit-scrollbar {
-  display: block;
-  width: 5px;
-  border-radius: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: transparent; 
-}
- 
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #888;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555; 
-}
-
-.container {
-  margin: 0 auto;
-  width: 1200px;
-  max-width: calc(100% - 32px);
-}
-
-.pages {
-  height: calc(100vh - 64px);
-}
-
-.img-product:hover {
-  transform: scale(1.02);
-  transition: all linear 0.3s;
-  opacity: 0.8;
-}
-
-.sort {
-  cursor: pointer;
-}
-
-.sort:hover .sort-ul {
-  display: block;
-  opacity: 1;
-}
-.sort-ul {
-  display: none;
-  opacity: 0;
-  transition: all ease-in-out 1s;
-}
-
-.bg-cart {
-  background-color: rgba(0, 0, 0, 0.568);
-}
-
-.description p {
-  margin: 10px 0;
-  font-size: 15px;
-  line-height: 2;
-}
-
-.overlay {
-  background-color: rgba(51, 51, 51, 0.363);
-  z-index: 99999999999999;
-  animation: fadeIn linear 0.3s
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  } to {
-    opacity: 1;
+  .pages {
+    @apply h-[calc(100vh-56px)] sm:h-[calc(100vh-56px)] md:h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)];
   }
 }
 
-.line-clamp-1,
-.line-clamp-2 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
+@layer utilities {
+  /* Scrollbar */
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      @apply hidden;
+    }
+  }
+
+  .scrollbar-visible::-webkit-scrollbar {
+    @apply block w-[5px] rounded-[10px];
+  }
+
+  .scrollbar-visible::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar-thumb {
+    @apply bg-[#888] hover:bg-[#555];
+  }
+
+  /* Text overflow */
+  .line-clamp-1 {
+    @apply overflow-hidden text-ellipsis line-clamp-1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.3s linear;
+  }
+
+  @keyframes fadeIn {
+    from { @apply opacity-0; }
+    to { @apply opacity-100; }
+  }
+
+  /* Hover effects */
+  .img-hover-effect {
+    @apply hover:scale-[1.02] hover:opacity-80 transition-all duration-300;
+  }
+
+  .sort-hover-effect:hover .sort-ul {
+    @apply block opacity-100;
+  }
 }
 
-.line-clamp-1 {
-  -webkit-line-clamp: 1;
+@layer components {
+  /* Navigation */
+  .nav-item {
+    @apply text-sm sm:text-base px-2 sm:px-3 md:px-4;
+  }
+
+  /* Cards */
+  .product-card {
+    @apply w-full sm:w-1/2 md:w-1/2 lg:w-auto mb-4;
+  }
+
+  /* Forms */
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors;
+  }
+
+  /* Overlays */
+  .overlay {
+    @apply bg-[rgba(51,51,51,0.363)] z-[99999999999999] fade-in;
+  }
+
+  /* Backgrounds */
+  .bg-cart {
+    @apply bg-[rgba(0,0,0,0.568)];
+  }
 }
 
-.line-clamp-2 {
-  -webkit-line-clamp: 2;
+/* Responsive styles */
+html {
+  @apply text-[14px] sm:text-[14px] md:text-[15px] lg:text-[16px];
+}
+
+.mobile-menu {
+  @apply block sm:block md:hidden;
+}
+
+.desktop-menu {
+  @apply hidden md:block;
+}
+
+.tablet-hidden {
+  @apply hidden md:hidden;
+}
+
+.desktop-only {
+  @apply hidden lg:block;
+}
+
+.grid-products {
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.section-padding {
+  @apply py-6 px-4 sm:py-8 sm:px-6 md:px-8 lg:px-12;
+}
+
+/* Utility classes */
+.responsive-padding {
+  @apply px-4 sm:px-6 md:px-8 lg:px-12;
+}
+
+.responsive-text {
+  @apply text-sm sm:text-base md:text-lg lg:text-xl;
+}
+
+.responsive-grid {
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+}
+
+.product-image {
+  @apply h-32 sm:h-40 md:h-48 lg:h-56;
+}
+
+.modal-width {
+  @apply w-full sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-1/2;
+}
+
+/* Description text */
+.description p {
+  @apply my-[10px] text-[15px] leading-[2];
+}
+
+/* Sort dropdown */
+.sort {
+  @apply cursor-pointer;
+}
+
+.sort-ul {
+  @apply hidden opacity-0 transition-all duration-300 ease-in-out;
 }

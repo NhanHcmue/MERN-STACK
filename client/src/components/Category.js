@@ -19,9 +19,9 @@ const Category = () => {
           Tất cả sản phẩm
         </Link>
         <Link
-          to={`/product/Phone?page=1`}
+          to={`/product/phone?page=1`}
           className={`p-2 border-b-2 block ${
-            category === "Phone" ? "bg-black rounded-md text-white" : ""
+            category === "phone" ? "bg-black rounded-md text-white" : ""
           }`}
         >
           Điện thoại di động

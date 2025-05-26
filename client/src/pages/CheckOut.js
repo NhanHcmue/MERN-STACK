@@ -107,7 +107,7 @@ const CheckOut = () => {
                   value={newOrder.email}
                   onChange={onChangeInput}
                   className="w-full px-2 py-1 border rounded-md"
-                  placeholder="Ex: nnn.hcmue@gmail.com"
+                  placeholder="Ex: penguin@gmail.com"
                   required
                 />
               </div>

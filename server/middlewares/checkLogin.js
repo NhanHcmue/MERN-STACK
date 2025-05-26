@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+
 const verifyToken = (req, res, next) => {
-  const authHeader = req.header("Authorization");
+  const authHeader = req.header("authorization"); // viết thường
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token)
@@ -8,6 +9,7 @@ const verifyToken = (req, res, next) => {
       success: false,
       message: "User is not login !!!",
     });
+
   try {
     const decoded = jwt.verify(token, process.env.PASSJWT);
 
@@ -17,7 +19,7 @@ const verifyToken = (req, res, next) => {
     console.log(error);
     res.status(403).json({
       success: false,
-      message: "Token not found !!!",
+      message: "Invalid or expired token !!!",
     });
   }
 };

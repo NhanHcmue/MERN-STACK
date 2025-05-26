@@ -14,13 +14,13 @@ const contact = [
   {
     icon: "bx bx-envelope",
     name: "Email: ",
-    content: "nnn.hcmue@gmail.com",
+    content: "penguin@gmail.com",
   },
 ];
 
 const Footer = () => {
   return (
-    <div className="py-10 mt-10 bg-[#d70018] text-black">
+    <div className="py-10 mt-10 bg-[#200F11] text-black">
       <div className="container flex items-center pb-6 md:flex-row flex-col">
         <div className="md:w-[30%] w-full">
           <div className="mb-6">

@@ -22,12 +22,22 @@ const Users = new Schema(
     },
     image: {
       type: String,
-      dafault:
-        "https://genvita.vn/resources/avatar/1157843c-1248-4960-b75e-df0031e903d6?width=119&height=119&mode=crop",
+      default :
+        "https://www.pngegg.com/vi/png-zwxqf",
     },
     status: {
       type: String,
-      default: "Active",
+      default: "Pending",
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpire: {
+      type: Date,
     },
   },
   {

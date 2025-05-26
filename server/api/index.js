@@ -10,7 +10,7 @@ const adminRoute = require("../routes/AdminRoute");
 const productRoute = require("../routes/ProductRoute");
 const orderRoute = require("../routes/OrderRoute");
 const reviewRoute = require("../routes/ReviewRoute");
-
+const authRoutes = require("../routes/authRoutes"); 
 const app = express();
 
 app.use(express.static("public"));
@@ -42,6 +42,7 @@ app.use("/api/admin", adminRoute);
 app.use("/api/product", productRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/review", reviewRoute);
+app.use("/api/authreal", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 

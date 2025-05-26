@@ -238,7 +238,7 @@ const FormEditProducts = () => {
           value={product.category}
           onChange={onChangeInput}
         >
-          <option value={"Phone"}>Điện thoại</option>
+          <option value={"phone"}>Điện thoại</option>
           <option value={"Watch"}>Đồng hồ</option>
           <option value={"Tablet"}>Máy tính bảng</option>
           <option value={"Laptop"}>Laptop</option>

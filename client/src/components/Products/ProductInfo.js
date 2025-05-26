@@ -12,13 +12,18 @@ const ProductInfo = ({ data }) => {
   const dispatch = useDispatch();
 
   const handleAddToCart = (product) => {
-    if (colors.length === 0 || memorys.length === 0)
-      return toast.warn("Hãy chọn màu và phiên bản bộ nhớ !");
+    const hasColors = product.colors && product.colors.length > 0;
+    const hasMemorys = product.memorys && product.memorys.length > 0;
+
+    if ((hasColors && colors.length === 0) || (hasMemorys && memorys.length === 0)) {
+      return toast.warn("Hãy chọn đầy đủ các tùy chọn bắt buộc!");
+    }
+
     dispatch(
       addToCart({
         ...product,
-        colors: colors[0],
-        memorys: memorys[0],
+        colors: hasColors ? colors[0] : null,
+        memorys: hasMemorys ? memorys[0] : null,
         quanty: 1,
       })
     );
@@ -45,35 +50,43 @@ const ProductInfo = ({ data }) => {
           />
         </p>
       </div>
+
       <button className="bg-black mt-3 w-full px-2 py-1 justify-center text-white rounded-md flex items-center">
         <i className="bx bxs-train text-2xl mr-2"></i> Miễn phí giao hàng
       </button>
-      <div className="mt-2">
-        <p className="text-sm my-1 font-semibold">Lựa chọn màu sắc</p>
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {data.colors?.map((p) => (
-            <Option
-              checkedInput={colors}
-              setCheckedInput={setColors}
-              key={p}
-              content={p}
-            />
-          ))}
+
+      {data.colors?.length > 0 && (
+        <div className="mt-2">
+          <p className="text-sm my-1 font-semibold">Lựa chọn màu sắc</p>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {data.colors.map((p) => (
+              <Option
+                checkedInput={colors}
+                setCheckedInput={setColors}
+                key={p}
+                content={p}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="mt-2">
-        <p className="text-sm my-1 font-semibold">Lựa chọn phiên bản</p>
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {data.memorys?.map((p) => (
-            <Option
-              key={p}
-              content={p}
-              checkedInput={memorys}
-              setCheckedInput={setMemorys}
-            />
-          ))}
+      )}
+
+      {data.memorys?.length > 0 && (
+        <div className="mt-2">
+          <p className="text-sm my-1 font-semibold">Lựa chọn phiên bản</p>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {data.memorys.map((p) => (
+              <Option
+                key={p}
+                content={p}
+                checkedInput={memorys}
+                setCheckedInput={setMemorys}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
       <div>
         <p className="font-semibold mt-2">Khuyến mãi</p>
         <div>
@@ -95,6 +108,7 @@ const ProductInfo = ({ data }) => {
           </p>
         </div>
       </div>
+
       <button
         onClick={() => handleAddToCart(data)}
         className="bg-black my-3 w-full p-2 justify-center text-white rounded-md flex items-center"

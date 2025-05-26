@@ -18,7 +18,7 @@ const Product = new Schema(
       type: Array,
       required: true,
     },
-    thumnail: {
+    thumbnail: {
       type: String,
       required: true,
     },

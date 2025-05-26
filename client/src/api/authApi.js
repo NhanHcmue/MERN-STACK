@@ -16,4 +16,8 @@ const editUser = (userInfo) => {
   return axiosClient.put("/api/auth", userInfo);
 };
 
-export { loginAPi, registerApi, getUserInfo, editUser };
+const forgotPasswordAPI = (email) => {
+  return axiosClient.post("/api/authreal/forgot-password", { email });
+};
+
+export { loginAPi, registerApi, getUserInfo, editUser, forgotPasswordAPI };

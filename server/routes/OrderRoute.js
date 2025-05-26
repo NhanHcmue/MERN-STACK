@@ -9,6 +9,7 @@ const {
   getOrderbyId,
   deleteOrder,
   editOderbyId,
+  getRevenueByMonth,
 } = require("../controllers/OrderController");
 
 // GET
@@ -42,5 +43,7 @@ route.delete("/:id", checkAdmin, deleteOrder);
 route.get("/:id", checkLogin, getOrderbyId);
 
 route.put("/", checkAdmin, editOderbyId);
+
+route.get("/revenue-by-month", checkAdmin, getRevenueByMonth);
 
 module.exports = route;

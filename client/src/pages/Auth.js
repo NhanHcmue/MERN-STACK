@@ -16,7 +16,7 @@ const Auth = () => {
 
   return (
     <div className="flex items-center h-screen container">
-      <div className="h-[550px] flex justify-between w-full rounded-lg overflow-hidden">
+      <div className="flex justify-between w-full rounded-lg overflow-hidden">
         <div className="flex-1  hidden md:block relative">
           <img
             src="/aunt.jpg"

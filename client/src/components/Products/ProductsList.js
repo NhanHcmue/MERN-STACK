@@ -5,7 +5,7 @@ import LoadingCenter from "../Loading/LoadingCenter";
 import Paginate from "../Paginate";
 import { useSearchParams } from "../../hooks/useSearchParams";
 
-const ProductsList = ({ category, title, paginate, limit }) => {
+const ProductsList = ({ category, title, paginate, limit, viewMode = "grid" }) => {
   const [product, setProduct] = useState([]);
   const [totalPage, setTotalPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -44,22 +44,27 @@ const ProductsList = ({ category, title, paginate, limit }) => {
   }
 
   return (
-    <>
-      <div className="flex-1 shadow-sm rounded-sm mb-4">
-        <h1 className="font-semibold font-[20px] bg-white p-2 my-3 rounded-md">
-          {title}
-        </h1>
-        {
-          <div className="grid lg:grid-cols-5 gap-2 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 w-full">
-            {product.map((p) => (
-              <ProductItem key={p._id} data={p} />
-            ))}
-          </div>
-        }
-        {paginate && <Paginate totalPage={totalPage} />}
-      </div>
-    </>
+    <div className="flex-1 shadow-sm rounded-sm mb-4">
+      <h1 className="font-semibold text-[20px] bg-white p-2 my-3 rounded-md">
+        {title}
+      </h1>
+
+      {viewMode === "grid" ? (
+        <div className="grid lg:grid-cols-5 gap-2 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 w-full">
+          {product.map((p) => (
+            <ProductItem key={p._id} data={p} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col w-full space-y-2">
+          {product.map((p) => (
+            <ProductItem key={p._id} data={p} isListView={true} />
+          ))}
+        </div>
+      )}
+
+      {paginate && <Paginate totalPage={totalPage} />}
+    </div>
   );
 };
-
 export default ProductsList;

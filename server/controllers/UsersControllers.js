@@ -1,9 +1,11 @@
 const Users = require("../models/Users");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
-require('dotenv').config();
+const crypto = require("crypto");
 
-const secretKey = process.env.PASSJWT;
+require("dotenv").config();
+
+const sendEmail = require("../utils/sendEmail");
 
 const loginUsers = async (req, res) => {
   const { email, password } = req.body;
@@ -11,40 +13,47 @@ const loginUsers = async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Mising parameters !!!",
+      message: "Missing parameters!",
     });
   }
 
-  const verifyEmail = await Users.findOne({ email });
-  if (!verifyEmail) {
-    return res.status(400).json({
+  try {
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found!",
+      });
+    }
+
+    const isPasswordValid = await argon2.verify(user.password, password);
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect password!",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        roleId: user.roleId,
+      },
+      process.env.PASSJWT
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful!",
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
       success: false,
-      message: "User not found !!!",
+      message: "Server error!",
     });
   }
-
-  const verifyPassword = await argon2.verify(verifyEmail.password, password);
-  if (!verifyPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "Password was wrong !!!",
-    });
-  }
-  console.log('SECRET_KEY:', process.env.PASSJWT);
-  const token = jwt.sign(
-    {
-      userId: verifyEmail._id,
-      roleId: verifyEmail.roleId,
-    },
-    process.env.PASSJWT
-  );
-  console.log('SECRET_KEY:', process.env.PASSJWT);
-
-  return res.status(200).json({
-    success: true,
-    message: "Login success !!!",
-    token,
-  });
 };
 
 const registerUsers = async (req, res) => {
@@ -53,123 +62,257 @@ const registerUsers = async (req, res) => {
   if (!email || !name || !password) {
     return res.status(400).json({
       success: false,
-      message: "Mising parameters !!!",
+      message: "Missing parameters!",
     });
   }
 
   try {
-    const existEmail = await Users.findOne({ email });
-    if (existEmail) {
+    const existingUser = await Users.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "Email existing !!!",
+        message: "Email already exists!",
       });
     }
 
-    const hashPassword = await argon2.hash(password);
+    const hashedPassword = await argon2.hash(password);
 
     const newUser = new Users({
       email,
-      password,
+      password: hashedPassword,
       name,
       roleId: "user",
-      password: hashPassword,
       image:
-        "https://genvita.vn/resources/avatar/1157843c-1248-4960-b75e-df0031e903d6?width=119&height=119&mode=crop",
+        "https://api.dicebear.com/7.x/avataaars/svg?seed=User", // bạn có thể đổi link avatar mặc định ở đây
+      status: "Pending",
+      isVerified: false,
     });
 
     await newUser.save();
-    
-    console.log('SECRET_KEY:', process.env.PASSJWT);
 
-    const token = jwt.sign(
-      {
-        userId: newUser._id,
-        roleId: newUser.roleId,
-      },
-      process.env.PASSJWT
+    const token = jwt.sign({ userId: newUser._id }, process.env.PASSJWT, {
+      expiresIn: "1d",
+    });
+
+    const verifyUrl = `${process.env.CLIENT_URL}/verify/${token}`;
+
+      console.log("Verify URL:", verifyUrl);
+    await sendEmail(
+      email,
+      "Kích hoạt tài khoản",
+      `<h3>Xin chào ${name}</h3><p>Nhấn vào nè má <a href="${verifyUrl}">đây</a> để kích hoạt tài khoản của bạn.</p>`
     );
 
-    return res.status(203).json({
+    return res.status(201).json({
       success: true,
-      message: "Register success !!!",
-      token,
+      message: "Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản cl",
     });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
+    console.error(error);
+    return res.status(500).json({
       success: false,
-      message: "Register failed !!!",
+      message: "Registration failed!",
     });
   }
 };
 
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params; // ✅ Lấy token từ URL
+    console.log("Xác minh token:", token); // ✅ Sử dụng sau khi khai báo
+
+    const decoded = jwt.verify(token, process.env.PASSJWT);
+    const user = await Users.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(400).send("Người dùng không tồn tại.");
+    }
+
+    if (user.isVerified) {
+      return res.send("Tài khoản đã được xác minh trước đó.");
+    }
+
+    user.isVerified = true;
+    user.status = "Active";
+    await user.save();
+
+    res.send("Kích hoạt tài khoản thành công!");
+  } catch (err) {
+    console.error("Verify email error:", err);
+    res.status(400).send("Liên kết không hợp lệ hoặc đã hết hạn.");
+  }
+};
+
+
+
 const getUserInfo = async (req, res) => {
-  const userId = req.userId;
-  const userInfo = await Users.findOne({ _id: userId }).select("-password");
-  if (!userInfo)
-    return res.send(400).json({
-      success: false,
-      message: "User not found !!!",
+  try {
+    const user = await Users.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found!",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
     });
-  return res.status(200).json({
-    success: true,
-    user: userInfo,
-  });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error!",
+    });
+  }
 };
 
 const editUser = async (req, res) => {
   const userId = req.userId;
-  const idEdit = req.body._id;
-  if (userId !== idEdit) {
-    return res.status(400).json({
+  const { _id, name, email, passwordOld, password } = req.body;
+
+  if (userId !== _id) {
+    return res.status(403).json({
       success: false,
       message: "Bạn chỉ được chỉnh sửa thông tin của bạn!",
     });
   }
-  try {
-    const userInfo = await Users.findOne({ _id: idEdit });
-    if (req.body.passwordOld && req.body.password) {
-      const verifyPassword = await argon2.verify(
-        userInfo.password,
-        req.body.passwordOld
-      );
 
-      if (!verifyPassword) {
-        return res.status(404).json({
+  try {
+    const user = await Users.findById(_id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found!",
+      });
+    }
+
+    if (passwordOld && password) {
+      const isOldPasswordCorrect = await argon2.verify(user.password, passwordOld);
+
+      if (!isOldPasswordCorrect) {
+        return res.status(400).json({
           success: false,
-          message: "Mật khẩu cũ bị sai vui lòng kiểm tra lại!",
+          message: "Mật khẩu cũ bị sai, vui lòng kiểm tra lại!",
         });
       }
 
-      const hashPassword = await argon2.hash(req.body.password);
-      await Users.findByIdAndUpdate(idEdit, {
-        ...req.body,
-        password: hashPassword,
-      });
-    } else {
-      await Users.findByIdAndUpdate(idEdit, {
-        name: req.body.name,
-        email: req.body.email,
-      });
+      const newHashedPassword = await argon2.hash(password);
+      user.password = newHashedPassword;
     }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    await user.save();
 
     return res.json({
       success: true,
       message: "Cập nhật thành công!",
     });
   } catch (error) {
-    console.log(error);
-    return res.status(400).json({
+    console.error(error);
+    return res.status(500).json({
       success: false,
-      message: "Server not found!",
+      message: "Server error!",
     });
   }
 };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email không được để trống.",
+    });
+  }
+
+  try {
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Email không tồn tại trong hệ thống.",
+      });
+    }
+
+    // Tạo token reset password
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Lưu token và thời gian hết hạn (1 giờ)
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = Date.now() + 3600000; // 1 giờ
+    await user.save();
+
+    // Tạo link đặt lại mật khẩu
+    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
+
+    // Nội dung email
+    const message = `
+      <p>Bạn nhận được email này vì đã yêu cầu đặt lại mật khẩu.</p>
+      <p>Vui lòng nhấn vào link sau để đặt lại mật khẩu:</p>
+      <a href="${resetUrl}">${resetUrl}</a>
+      <p>Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>
+    `;
+
+
+    // Gửi email
+    await sendEmail(email, "Đặt lại mật khẩu", message);
+
+    return res.json({
+      success: true,
+      message: "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư đến.",
+    });
+  } catch (error) {
+    console.error("forgotPassword error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi máy chủ, vui lòng thử lại sau.",
+    });
+  }
+};
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ success: false, message: "Token và mật khẩu mới là bắt buộc." });
+  }
+
+  try {
+    const user = await Users.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Token không hợp lệ hoặc đã hết hạn." });
+    }
+
+    // Hash mật khẩu mới trước khi lưu
+    const hashedPassword = await argon2.hash(newPassword);
+    user.password = hashedPassword;
+
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.json({ success: true, message: "Mật khẩu đã được đặt lại thành công." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Lỗi máy chủ." });
+  }
+};
+
 
 module.exports = {
   loginUsers,
   registerUsers,
   getUserInfo,
   editUser,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
 };
